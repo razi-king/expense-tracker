@@ -16,6 +16,9 @@ export function saveToken(token) {
 export function clearToken() {
   localStorage.removeItem("token");
 }
+export function saveRes(res){
+  localStorage.setItem("res",res);
+}
 
 // ========================
 // 🔹 Axios Instance
@@ -44,7 +47,10 @@ api.interceptors.response.use(
     // Save token when logging in
     if (res.config.url?.includes("/users/login") && typeof res.data === "string") {
       if (res.data.trim().length > 0) {
-        saveToken(res.data);
+        console.log(res);
+        saveRes(res.data);
+        
+        saveToken(res.data); 
       } else {
         return Promise.reject(new Error("Invalid Credentials"));
       }
@@ -62,10 +68,10 @@ api.interceptors.response.use(
         window.location.href = "/login";
       } else if (status === 403) {
         // Forbidden → Wrong role
-        alert("❌ You don’t have permission to access this resource.");
+        alert(" You don’t have permission to access this resource.");
       } else if (status === 404) {
         // Not Found → No data
-        alert("⚠️ Requested data not found.");
+        alert(" Requested data not found.");
       } else {
         alert(`Unexpected error: ${data || "Something went wrong"}`);
       }
