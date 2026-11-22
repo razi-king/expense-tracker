@@ -1,0 +1,30 @@
+# Node
+node_modules/
+dist/
+.astro/
+
+# Java / Maven
+target/
+*.class
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.settings/
+.project
+.classpath
+
+# Env and secrets
+.env
+.env.*
+application-local.properties
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Archives (never commit these)
+*.zip
+*.rar
