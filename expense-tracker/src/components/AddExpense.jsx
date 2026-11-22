@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../lib/api";
+import { to } from '../lib/paths';
 
 export default function AddExpense() {
   const [id, setId] = useState();
@@ -155,7 +156,7 @@ export default function AddExpense() {
             {/* Quick Navigation */}
             <div className="mt-6 text-center">
               <a
-                href="/user"
+                href={to('/user')}
                 className="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-500 font-medium transition-colors duration-200"
               >
                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

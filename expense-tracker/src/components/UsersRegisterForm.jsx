@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import api from '../lib/api';
+import { to } from '../lib/paths';
 import { registerFormSchema } from './hooks/useFormLogic';
 
 export default function UserLoginForm() {
@@ -9,7 +10,7 @@ export default function UserLoginForm() {
   async function handleLogin(values, { setSubmitting }) {
     try {
       await api.post("/users/register", values); // ✅ use Formik values, not undefined `user`
-      window.location.href = "/login";
+      window.location.href = to('/login');
     } catch (err) {
       setErrors(err?.response?.data?.message || "Invalid Credentials"); // ✅ improved error handling
     } finally {

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { to } from "./paths";
 
 const ApiBase = import.meta.env.PUBLIC_API_BASE_URL;
 
@@ -65,7 +66,7 @@ api.interceptors.response.use(
         // Unauthorized → Token expired / invalid
         clearToken();
         alert("Session Expired or Invalid. Please log in again.");
-        window.location.href = "/login";
+        window.location.href = to('/login');
       } else if (status === 403) {
         // Forbidden → Wrong role
         alert(" You don’t have permission to access this resource.");

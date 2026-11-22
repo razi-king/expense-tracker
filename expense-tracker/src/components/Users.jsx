@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import api from '../lib/api'
+import { to } from '../lib/paths';
 
 export default function Users() {
     const [user, setUser] = useState([])
@@ -109,7 +110,7 @@ export default function Users() {
                     {/* Action Button */}
                     <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
                         <a 
-                            href='/expense/add-expense'
+                            href={to('/expense/add-expense')}
                             className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                         >
                             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

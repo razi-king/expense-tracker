@@ -70,9 +70,22 @@ npm run dev                     # http://localhost:4321
 `application.properties` should read secrets from the environment:
 
 ```properties
-spring.datasource.password=${DB_PASSWORD}
+spring.datasource.url=${DATABASE_URL:jdbc:mysql://localhost:3306/expensetracker}
+spring.datasource.password=${DB_PASSWORD:}
 secretKey=${JWT_SECRET}
 ```
+
+## Deploy (free)
+
+| Piece | Where |
+|---|---|
+| Frontend | GitHub Pages, via `.github/workflows/pages.yml` |
+| API | Render (Docker), via `render.yaml` |
+| Database | Postgres on Neon. The API also runs on MySQL locally, because the driver is picked from the URL |
+
+1. Settings → Pages → Source: **GitHub Actions**
+2. Create a Neon Postgres project. Render → New → Blueprint → this repo. Fill in `DATABASE_URL` (`jdbc:postgresql://…?sslmode=require`), `DB_USERNAME` and `DB_PASSWORD`
+3. Settings → Secrets and variables → Actions → Variables: `API_URL` = your Render URL. Re-run the Pages workflow
 
 ## Roadmap
 

@@ -3,6 +3,7 @@ package com.example.expensetracker.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -27,7 +28,9 @@ public class SecurityConfig {
 	SecurityFilterChain securityFilterChain(HttpSecurity security) throws Exception {
 		return security
 				.csrf(c->c.disable())
+				.cors(Customizer.withDefaults()) // uses the origins from CorsConfig
 				.authorizeHttpRequests(req ->{
+					req.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll(); // browser preflight
 					req.requestMatchers("/users/login","/users/register").permitAll();
 					req.requestMatchers("/users/allUsers").hasAnyRole("ADMIN");
 					req.anyRequest().authenticated();
