@@ -7,7 +7,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
-  // GitHub Pages serves this at /Expense-Tracker (set by the deploy workflow)
+  // GitHub Pages serves this at /expense-tracker (set by the deploy workflow)
   base: process.env.BASE_PATH || '/',
   integrations: [react()],
 
