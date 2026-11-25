@@ -1,87 +1,64 @@
-import axios from "axios";
-import { to } from "./paths";
+import { to } from './paths';
 
-const ApiBase = import.meta.env.PUBLIC_API_BASE_URL;
+const API = (import.meta.env.PUBLIC_API_BASE_URL || '').replace(/\/$/, '');
+export const apiConfigured = Boolean(API);
 
-// ========================
-// 🔹 Token Helpers
-// ========================
-export function getToken() {
-  return localStorage.getItem("token");
-}
+const TOKEN = 'et.token';
+const USER = 'et.user';
 
-export function saveToken(token) {
-  localStorage.setItem("token", token);
-}
-
-export function clearToken() {
-  localStorage.removeItem("token");
-}
-export function saveRes(res){
-  localStorage.setItem("res",res);
-}
-
-// ========================
-// 🔹 Axios Instance
-// ========================
-const api = axios.create({
-  baseURL: ApiBase,
-  headers: { "Content-Type": "application/json" },
-});
-
-// ========================
-// 🔹 Request Interceptor
-// ========================
-api.interceptors.request.use((config) => {
-  const token = getToken();
-  if (token && token !== "null" && token !== "undefined") {
-    config.headers["Authorization"] = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// ========================
-// 🔹 Response Interceptor
-// ========================
-api.interceptors.response.use(
-  (res) => {
-    // Save token when logging in
-    if (res.config.url?.includes("/users/login") && typeof res.data === "string") {
-      if (res.data.trim().length > 0) {
-        console.log(res);
-        saveRes(res.data);
-        
-        saveToken(res.data); 
-      } else {
-        return Promise.reject(new Error("Invalid Credentials"));
-      }
-    }
-    return res.data;
+export const session = {
+  token: () => localStorage.getItem(TOKEN),
+  user: () => {
+    try { return JSON.parse(localStorage.getItem(USER) || 'null'); } catch { return null; }
   },
-  (err) => {
-    if (err?.response) {
-      const { status, data } = err.response;
+  save({ token, user }) {
+    localStorage.setItem(TOKEN, token);
+    localStorage.setItem(USER, JSON.stringify(user));
+  },
+  clear() {
+    localStorage.removeItem(TOKEN);
+    localStorage.removeItem(USER);
+  },
+};
 
-      if (status === 401) {
-        // Unauthorized → Token expired / invalid
-        clearToken();
-        alert("Session Expired or Invalid. Please log in again.");
-        window.location.href = to('/login');
-      } else if (status === 403) {
-        // Forbidden → Wrong role
-        alert(" You don’t have permission to access this resource.");
-      } else if (status === 404) {
-        // Not Found → No data
-        alert(" Requested data not found.");
-      } else {
-        alert(`Unexpected error: ${data || "Something went wrong"}`);
-      }
-    } else {
-      alert("Network error. Please check your connection.");
-    }
-
-    return Promise.reject(err);
+/** Error with the API's message and per-field messages, ready for the forms. */
+export class ApiError extends Error {
+  constructor(status, message, fields) {
+    super(message);
+    this.status = status;
+    this.fields = fields || {};
   }
-);
+}
 
-export default api;
+/**
+ * Calls the Spring Boot API. Free hosting sleeps when idle, so the first call
+ * can take up to a minute: onSlow lets the UI say so instead of looking broken.
+ */
+export async function request(path, { method = 'GET', body, onSlow } = {}) {
+  if (!API) throw new ApiError(0, 'The backend is not connected yet. Set PUBLIC_API_BASE_URL.');
+  const headers = { 'Content-Type': 'application/json' };
+  const token = session.token();
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const slow = onSlow ? setTimeout(onSlow, 4000) : null;
+  let res;
+  try {
+    res = await fetch(API + path, { method, headers, body: body ? JSON.stringify(body) : undefined });
+  } catch {
+    throw new ApiError(0, 'Could not reach the server. Check your connection and try again.');
+  } finally {
+    if (slow) clearTimeout(slow);
+  }
+
+  if (res.status === 204) return null;
+  const data = await res.json().catch(() => null);
+  if (res.ok) return data;
+
+  if (res.status === 401 && token) {
+    session.clear();
+    window.location.href = to('/login?expired=1');
+  }
+  throw new ApiError(res.status, data?.message || `Request failed (${res.status})`, data?.fields);
+}
+
+export const wakeServer = () => API && fetch(`${API}/healthz`).catch(() => {});

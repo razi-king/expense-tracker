@@ -19,33 +19,27 @@
 
 ## Features
 
-- **Register / login** with BCrypt-hashed passwords and a signed JWT returned on login
-- **Stateless auth**: a custom `JwtAuthenticationFilter` validates the token on every request
-- **Role-based access**: `/users/allUsers` is restricted to `ADMIN`; everything else needs a valid token
-- **Per-user expenses**: each expense (title, amount, date) belongs to the logged-in user
-- **Astro + React frontend** with Formik + Yup form validation and an auth context
-
-## Architecture
-
-```
-expense-tracker/            → Astro + React + Tailwind frontend
-expense-tracker-backend/    → Spring Boot REST API
-  ├── controller/           → UsersController, ExpenseController
-  ├── service/ + impl/      → business logic behind interfaces
-  ├── repository/           → Spring Data JPA
-  ├── entity/ · dtos/       → JPA entities and request/response DTOs
-  └── config/               → SecurityConfig, JwtAuthenticationFilter, CorsConfig
-```
+- **Dashboard per month:** total spent, number of expenses, daily average and top category
+- **Charts:** spending by category (donut) and the last 6 months (bar), with Recharts
+- **Expenses:** add, edit and delete, with a category, date and optional note; filter by category
+- **Secure by design:** stateless JWT auth (custom Spring Security filter), BCrypt passwords, and every query scoped to the logged-in user, so nobody can read or change someone else's data
+- **Consistent API errors** (`{status, error, message, fields}`), shown next to the matching form field
+- **Free-hosting aware:** the UI says "waking up the server" instead of looking broken while Render starts
+- **Tested:** MockMvc integration tests run against Postgres in CI (auth, validation, CRUD, summary, user isolation)
 
 ## API
 
 | Method | Endpoint | Auth | Description |
 |---|---|---|---|
-| `POST` | `/users/register` | Public | Create an account |
-| `POST` | `/users/login` | Public | Returns a JWT |
-| `GET` | `/users/allUsers` | `ADMIN` | List all users |
-| `POST` | `/Expense` | JWT | Add an expense |
-| `GET` | `/Expense` | JWT | List the current user's expenses |
+| `POST` | `/api/auth/register` | Public | Create an account → `{token, user}` |
+| `POST` | `/api/auth/login` | Public | Log in → `{token, user}` |
+| `GET` | `/api/auth/me` | JWT | Current user |
+| `GET` | `/api/expenses?month=2026-11&category=FOOD` | JWT | Your expenses for a month |
+| `GET` | `/api/expenses/summary?month=2026-11` | JWT | Totals, by category, 6-month trend |
+| `POST` | `/api/expenses` | JWT | Add an expense |
+| `PUT` | `/api/expenses/{id}` | JWT | Update one of your expenses |
+| `DELETE` | `/api/expenses/{id}` | JWT | Delete one of your expenses |
+| `GET` | `/swagger-ui.html` | Public | Interactive API docs |
 
 ## Run locally
 
@@ -89,10 +83,8 @@ secretKey=${JWT_SECRET}
 
 ## Roadmap
 
-- [ ] Expense categories and monthly summary
-- [ ] Charts for spending by category and month
-- [ ] Update / delete endpoints
-- [ ] Integration tests with Testcontainers
+- [ ] Monthly budgets with alerts
+- [ ] CSV export
 - [ ] Docker Compose for one-command setup
 
 ## Author

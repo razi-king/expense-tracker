@@ -1,8 +1,5 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import Userslog from "../components/UsersLoginForm"
+import Layout from '../layouts/Layout.astro'
+import AuthForm from '../components/AuthForm'
 ---
-
-<Layout>
-    <Userslog client:only="react"/>
-</Layout>
+<Layout title="Log in · Expense Tracker"><AuthForm mode="login" client:load /></Layout>

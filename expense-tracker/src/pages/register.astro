@@ -1,7 +1,5 @@
 ---
-import Ulf from '../components/UsersRegisterForm'
 import Layout from '../layouts/Layout.astro'
+import AuthForm from '../components/AuthForm'
 ---
-<Layout>
-    <Ulf client:only="react"/>
-</Layout>
+<Layout title="Sign up · Expense Tracker"><AuthForm mode="register" client:load /></Layout>

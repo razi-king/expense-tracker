@@ -1,1 +1,5 @@
 @import "tailwindcss";
+
+dialog[open] { animation: pop .15s ease-out; }
+@keyframes pop { from { opacity: 0; transform: translateY(8px) scale(.98); } }
+@media (prefers-reduced-motion: reduce) { dialog[open] { animation: none; } }
